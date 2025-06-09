@@ -78,7 +78,7 @@ def reemplazar_traje(pila, modelo_viejo, modelo_nuevo):
             encontrado = True
         pila_aux.apilar(traje)
     
-    # Restaurar la pila original
+    
     while not pila_aux.esta_vacia():
         pila.apilar(pila_aux.desapilar())
     
