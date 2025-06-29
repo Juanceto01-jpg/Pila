@@ -1,113 +1,96 @@
+from stack_ import Stack
+
 class TrajeIronMan:
     def __init__(self, modelo, pelicula, estado):
         self.modelo = modelo
         self.pelicula = pelicula
-        self.estado = estado  
-    
-    def __str__(self):
-        return f"Modelo: {self.modelo}, Película: {self.pelicula}, Estado: {self.estado}"
+        self.estado = estado
 
-class PilaTrajes:
-    def __init__(self):
-        self.trajes = []
-    
-    def apilar(self, traje):
-        self.trajes.append(traje)
-    
-    def desapilar(self):
-        if not self.esta_vacia():
-            return self.trajes.pop()
-        return None
-    
-    def esta_vacia(self):
-        return len(self.trajes) == 0
-    
-    def tamanio(self):
-        return len(self.trajes)
-    
-    def cima(self):
-        if not self.esta_vacia():
-            return self.trajes[-1]
-        return None
-    
-    def mostrar_trajes(self):
-        for traje in reversed(self.trajes):
-            print(traje)
+
+def mostrar_traje(traje):
+    print("Modelo:", traje.modelo)
+    print("Película:", traje.pelicula)
+    print("Estado:", traje.estado)
+
+
+def mostrar_pila(stack):
+    aux = Stack()
+    while not stack.is_empty():
+        traje = stack.pop()
+        mostrar_traje(traje)
+        aux.push(traje)
+    while not aux.is_empty():
+        stack.push(aux.pop())
 
 
 def cantidad_trajes_destruidos(pila):
     contador = 0
-    pila_aux = PilaTrajes()
-    
-    while not pila.esta_vacia():
-        traje = pila.desapilar()
-        pila_aux.apilar(traje)
+    aux = Stack()
+    while not pila.is_empty():
+        traje = pila.pop()
         if traje.estado == "Destruido":
             contador += 1
-    
-    
-    while not pila_aux.esta_vacia():
-        pila.apilar(pila_aux.desapilar())
-    
+        aux.push(traje)
+    while not aux.is_empty():
+        pila.push(aux.pop())
     return contador
 
+
 def modelos_impecables_avengers(pila):
-    modelos = set()
-    pila_aux = PilaTrajes()
-    
-    while not pila.esta_vacia():
-        traje = pila.desapilar()
-        pila_aux.apilar(traje)
+    modelos = []  # No usamos set()
+    aux = Stack()
+    while not pila.is_empty():
+        traje = pila.pop()
         if "Avengers" in traje.pelicula and traje.estado == "Impecable":
-            modelos.add(traje.modelo)
-    
-   
-    while not pila_aux.esta_vacia():
-        pila.apilar(pila_aux.desapilar())
-    
+            if traje.modelo not in modelos:
+                modelos.append(traje.modelo)
+        aux.push(traje)
+    while not aux.is_empty():
+        pila.push(aux.pop())
     return modelos
 
+
 def reemplazar_traje(pila, modelo_viejo, modelo_nuevo):
-    pila_aux = PilaTrajes()
-    encontrado = False
-    
-    while not pila.esta_vacia():
-        traje = pila.desapilar()
-        if traje.modelo == modelo_viejo and not encontrado:
+    aux = Stack()
+    reemplazado = False
+    while not pila.is_empty():
+        traje = pila.pop()
+        if traje.modelo == modelo_viejo and reemplazado == False:
             traje.modelo = modelo_nuevo
-            encontrado = True
-        pila_aux.apilar(traje)
-    
-    
-    while not pila_aux.esta_vacia():
-        pila.apilar(pila_aux.desapilar())
-    
-    return encontrado
+            reemplazado = True
+        aux.push(traje)
+    while not aux.is_empty():
+        pila.push(aux.pop())
+    return reemplazado
 
 
 if __name__ == "__main__":
-    pila_trajes = PilaTrajes()
-    
-    
-    pila_trajes.apilar(TrajeIronMan("Mark III", "Iron Man", "Dañado"))
-    pila_trajes.apilar(TrajeIronMan("Mark VI", "Avengers", "Impecable"))
-    pila_trajes.apilar(TrajeIronMan("Mark XLII", "Iron Man 3", "Destruido"))
-    pila_trajes.apilar(TrajeIronMan("Mark L", "Avengers: Infinity War", "Destruido"))
-    pila_trajes.apilar(TrajeIronMan("Mark LXXXV", "Avengers: Endgame", "Dañado"))
-    
+    pila = Stack()
+
+
+    pila.push(TrajeIronMan("Mark III", "Iron Man", "Dañado"))
+    pila.push(TrajeIronMan("Mark VI", "Avengers", "Impecable"))
+    pila.push(TrajeIronMan("Mark XLII", "Iron Man 3", "Destruido"))
+    pila.push(TrajeIronMan("Mark L", "Avengers: Infinity War", "Destruido"))
+    pila.push(TrajeIronMan("Mark LXXXV", "Avengers: Endgame", "Dañado"))
+
     print("Todos los trajes:")
-    pila_trajes.mostrar_trajes()
-    
-    print("\nCantidad de trajes destruidos:", cantidad_trajes_destruidos(pila_trajes))
-    
-    print("\nModelos impecables en películas de Avengers:")
-    print(modelos_impecables_avengers(pila_trajes))
-    
-    print("\nReemplazar Mark III por Mark IV:")
-    if reemplazar_traje(pila_trajes, "Mark III", "Mark IV"):
-        print("Traje reemplazado con éxito")
+    mostrar_pila(pila)
+
+    print("Cantidad de trajes destruidos:")
+    print(cantidad_trajes_destruidos(pila))
+
+    print("Modelos impecables en películas de Avengers:")
+    modelos = modelos_impecables_avengers(pila)
+    for i in range(len(modelos)):
+        print(modelos[i])
+
+    print("Reemplazar Mark III por Mark IV:")
+    if reemplazar_traje(pila, "Mark III", "Mark IV"):
+        print("Reemplazo exitoso.")
     else:
-        print("Traje no encontrado")
-    
-    print("\nPila después de las operaciones:")
-    pila_trajes.mostrar_trajes()
+        print("No se encontró el modelo.")
+
+    print("Pila final de trajes:")
+    mostrar_pila(pila)
+
